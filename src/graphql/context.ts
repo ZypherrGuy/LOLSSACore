@@ -1,19 +1,23 @@
-import { Request } from 'express';
-import { pool }    from '../config/database';
-import { env }     from '../config/env';
-import { getUserFromAuthHeader } from '../middleware/auth.middleware';
+import type { ExpressContextFunctionArgument } from '@apollo/server/express4';
+import { pool } from '../config/database';
+import { env }  from '../config/env';
+import { AuthRequest } from '../middleware/auth.middleware';
 
 export interface GQLContext {
   db: typeof pool;
-  user?: any;
-  token?: string;
   env: typeof env;
+  user?: { playerId: string } | null;
+  token?: string | null;
 }
 
 export const createContext = async (
-  { req }: { req: Request }
+  ctx: ExpressContextFunctionArgument
 ): Promise<GQLContext> => {
-  const token = req.headers.authorization;
-  const user  = getUserFromAuthHeader(token);
-  return { db: pool, user, token, env };
+  const req = ctx.req as unknown as AuthRequest;
+  return {
+    db:    pool,
+    env,
+    user:  req.user  ?? null,
+    token: req.token ?? null,
+  };
 };

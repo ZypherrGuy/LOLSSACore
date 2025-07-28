@@ -16,6 +16,10 @@ export interface RiotAccountDTO {
   linkedAt: Date;
 }
 
+export interface PlayerWithPasswordDTO extends PlayerDTO {
+  password: string;
+}
+
 export interface PlayerDTO {
   id: string;
   userId: string;
@@ -33,3 +37,4 @@ export interface PlayerDTO {
   createdAt: Date;
   updatedAt: Date;
 }
+

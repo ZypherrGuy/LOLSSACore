@@ -14,6 +14,8 @@ import { articleResolvers } from '../integrations/strapi/articles/article.resolv
 import { matchResolvers } from '../integrations/strapi/matches/match.resolver';
 import { translationResolvers } from '../integrations/strapi/translations/translation.resolver';
 
+import { authResolvers } from '../modules/auth/auth.resolver';
+
 export const resolvers = mergeResolvers([
   userResolvers,
   teamResolvers,
@@ -25,5 +27,6 @@ export const resolvers = mergeResolvers([
   dataDragonResolvers,
   articleResolvers,
   matchResolvers,
-  translationResolvers
+  translationResolvers,
+  authResolvers
 ]);
