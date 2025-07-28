@@ -1,4 +1,4 @@
-# LOLZA-Core
+# LOLSSA-Core
 
 ## Folder/File Structure:
 – config: Only configuration (e.g. DB connection).

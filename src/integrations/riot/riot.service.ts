@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
-import { MatchDto } from './dto/riot.dto';
+import { MatchDto } from './riot.dto';
 
 export interface RiotAccountResponse {
   puuid: string;

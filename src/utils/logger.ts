@@ -8,7 +8,7 @@ const logger = createLogger({
     format.splat(),
     format.json()
   ),
-  defaultMeta: { service: 'lolza-core' },
+  defaultMeta: { service: 'lolssa-core' },
   transports: [
     new transports.Console(),
     new transports.File({ filename: 'logs/error.log', level: 'error' }),
