@@ -1,22 +1,29 @@
 import { mergeResolvers } from '@graphql-tools/merge';
-import { userResolvers } from './modules/user/user.resolver';
-import { teamResolvers } from './modules/team/team.resolver';
-import { playerResolvers } from './modules/player/player.resolver';
-import { divisionResolvers } from './modules/division/division.resolver';
-import { tournamentResolvers } from './modules/tournament/tournament.resolver';
-import { seasonResolvers } from './modules/season/season.resolver';
-import { riotResolvers } from './external/riot/riot.resolver';
-import { dataDragonResolvers } from './external/datadragon/datadragon.resolver';
-import { sessionResolvers } from './modules/session/session.resolver';
+
+import { userResolvers }       from '../modules/user/user.resolver';
+import { teamResolvers }       from '../modules/team/team.resolver';
+import { playerResolvers }     from '../modules/player/player.resolver';
+import { tournamentResolvers } from '../modules/tournament/tournament.resolver';
+import { sessionResolvers }    from '../modules/session/session.resolver';
+import { statsResolvers } from '../modules/stats/stats.resolver';
+
+import { riotResolvers }       from '../integrations/riot/riot.resolver';
+import { dataDragonResolvers } from '../integrations/datadragon/datadragon.resolver';
+
+import { articleResolvers } from '../integrations/strapi/articles/article.resolver';
+import { matchResolvers } from '../integrations/strapi/matches/match.resolver';
+import { translationResolvers } from '../integrations/strapi/translations/translation.resolver';
 
 export const resolvers = mergeResolvers([
-  seasonResolvers,
-  tournamentResolvers,
-  divisionResolvers,
   userResolvers,
   teamResolvers,
   playerResolvers,
+  tournamentResolvers,
+  sessionResolvers,
+  statsResolvers,
   riotResolvers,
   dataDragonResolvers,
-  sessionResolvers
+  articleResolvers,
+  matchResolvers,
+  translationResolvers
 ]);

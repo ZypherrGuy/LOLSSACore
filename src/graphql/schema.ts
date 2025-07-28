@@ -1,16 +1,23 @@
-import { gql } from 'apollo-server-express';
-import { mergeTypeDefs } from '@graphql-tools/merge';
-import { userTypeDefs } from './modules/user/user.schema';
-import { teamTypeDefs } from './modules/team/team.schema';
-import { playerTypeDefs } from './modules/player/player.schema';
-import { dataDragonTypeDefs } from '../graphql/external/datadragon/datadragon.schema';
-import { riotTypeDefs } from '../graphql/external/riot/riot.schema';
-import { divisionTypeDefs } from './modules/division/division.schema';
-import { tournamentTypeDefs } from './modules/tournament/tournament.schema';
-import { seasonTypeDefs } from './modules/season/season.schema';
-import { sessionTypeDefs } from './modules/session/session.schema';
+import { makeExecutableSchema }      from '@graphql-tools/schema';
+import { mergeTypeDefs }             from '@graphql-tools/merge';
 
-const baseTypeDefs = gql`
+import { resolvers }                 from './resolvers';
+
+import { userTypeDefs }              from '../modules/user/user.schema';
+import { teamTypeDefs }              from '../modules/team/team.schema';
+import { playerTypeDefs }            from '../modules/player/player.schema';
+import { statsTypeDefs }          from '../modules/stats/stats.schema';
+import { tournamentTypeDefs }        from '../modules/tournament/tournament.schema';
+import { sessionTypeDefs }           from '../modules/session/session.schema';
+
+import { riotTypeDefs }              from '../integrations/riot/riot.schema';
+import { dataDragonTypeDefs }        from '../integrations/datadragon/datadragon.schema';
+
+import { articleTypeDefs } from '../integrations/strapi/articles/article.schema';
+import { matchTypeDefs } from '../integrations/strapi/matches/match.schema';
+import { translationTypeDefs } from '../integrations/strapi/translations/translation.schema';
+
+const baseTypeDefs = `
   type Query {
     _empty: String
   }
@@ -19,15 +26,19 @@ const baseTypeDefs = gql`
   }
 `;
 
-export const typeDefs = mergeTypeDefs([
+const typeDefs = mergeTypeDefs([
   baseTypeDefs,
   userTypeDefs,
   teamTypeDefs,
   playerTypeDefs,
-  dataDragonTypeDefs,
-  riotTypeDefs,
-  divisionTypeDefs,
-  seasonTypeDefs,
+  statsTypeDefs,
   tournamentTypeDefs,
-  sessionTypeDefs
+  sessionTypeDefs,
+  riotTypeDefs,
+  dataDragonTypeDefs,
+  articleTypeDefs,
+  matchTypeDefs,
+  translationTypeDefs
 ]);
+
+export const schema = makeExecutableSchema({ typeDefs, resolvers });
