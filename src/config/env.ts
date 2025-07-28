@@ -17,6 +17,8 @@ const EnvSchema = z.object({
   PUBLIC_DB_HOST:      z.string().optional(),
   PUBLIC_DB_PORT:      z.string().optional().transform(Number),
 
+  JWT_SECRET:          z.string(),
+
   RIOT_API_KEY:    z.string(),
   RIOT_BASE_URL:   z.string().url(),
 

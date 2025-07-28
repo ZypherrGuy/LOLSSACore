@@ -1,12 +1,13 @@
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { logger } from '../utils/logger';
+import { env } from '../config/env';
 
 export interface AuthPayload {
-  id: string;
-  email: string;
+  playerId: string;
 }
 
-export const getUserFromAuthHeader = (authHeader?: string): AuthPayload | null => {
+export function getUserFromAuthHeader(authHeader?: string): AuthPayload | null {
   if (!authHeader) {
     return null;
   }
@@ -17,13 +18,21 @@ export const getUserFromAuthHeader = (authHeader?: string): AuthPayload | null =
   }
   const token = parts[1];
   try {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error('JWT_SECRET is not defined in environment variables.');
-    }
-    return jwt.verify(token, secret) as AuthPayload;
+    const payload = jwt.verify(token, env.JWT_SECRET) as AuthPayload;
+    return payload;
   } catch (error) {
     logger.warn('Token verification failed.', error);
     return null;
   }
-};
+}
+
+export function authMiddleware(
+  req: Request & { user?: AuthPayload },
+  _res: Response,
+  next: NextFunction
+) {
+  const authHeader = req.headers.authorization;
+  const user = getUserFromAuthHeader(authHeader);
+  if (user) req.user = user;
+  next();
+}

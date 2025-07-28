@@ -8,6 +8,7 @@ import { env } from './env';
 import { pool } from './database';
 import { schema } from '../graphql/schema';
 import { getUserFromAuthHeader } from '../middleware/auth.middleware';
+import { errorMiddleware } from '../middleware/error.middleware';
 import { logger } from '../utils/logger';
 
 export async function startServer() {
@@ -36,6 +37,8 @@ export async function startServer() {
       },
     }) as unknown as express.RequestHandler
   );
+
+  app.use(errorMiddleware);
 
   const port = env.PORT;
   app.listen(port, () =>
