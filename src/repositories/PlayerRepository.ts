@@ -1,4 +1,3 @@
-// PlayerRepository.ts
 import pool from '../config/postgres';
 
 export interface IPlayerRepository {

@@ -50,10 +50,6 @@ export class DataDragonService {
     return this.getChampionData();
   }
 
-  /**
-   * Returns champion info for the given key.
-   * @param key Champion key (can be a string or number)
-   */
   public async getChampionByKey(key: string | number): Promise<ChampionData | null> {
     const champions = await this.getChampionData();
     const keyStr = key.toString();

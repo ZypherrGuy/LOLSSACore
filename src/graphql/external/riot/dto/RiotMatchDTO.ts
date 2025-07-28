@@ -1,5 +1,3 @@
-// src/dto/MatchDTO.ts
-
 export interface MatchDto {
   metadata: MetadataDto;
   info: InfoDto;
@@ -43,7 +41,7 @@ export interface ParticipantDto {
   commandPings: number;
   championTransform: number;
   consumablesPurchased: number;
-  challenges: any; // You can further define this if needed
+  challenges: any; 
   damageDealtToBuildings: number;
   damageDealtToObjectives: number;
   damageDealtToTurrets: number;
@@ -109,7 +107,7 @@ export interface ParticipantDto {
   playerScore10: number;
   playerScore11: number;
   pentaKills: number;
-  perks: any; // Define more precisely if required
+  perks: any; 
   physicalDamageDealt: number;
   physicalDamageDealtToChampions: number;
   physicalDamageTaken: number;

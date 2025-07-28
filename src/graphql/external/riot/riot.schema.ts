@@ -1,4 +1,3 @@
-// src/graphql/external/riot/riot.schema.ts
 import { gql } from 'apollo-server-express';
 
 export const riotTypeDefs = gql`

@@ -1,4 +1,3 @@
-// auth.middleware.ts
 import jwt from 'jsonwebtoken';
 import { logger } from '../utils/logger';
 

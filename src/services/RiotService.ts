@@ -1,12 +1,10 @@
-// src/services/RiotService.ts
 import axios, { AxiosInstance } from 'axios';
 import dotenv from 'dotenv';
 import { logger } from '../utils/logger';
 import { MatchDto } from '../graphql/external/riot/dto/RiotMatchDTO';
 
-dotenv.config(); // Load env variables
+dotenv.config(); 
 
-// Define the expected shape of Riot's response.
 export interface RiotAccountResponse {
   puuid: string;
   gameName: string;

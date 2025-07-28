@@ -1,4 +1,3 @@
-// SessionRepository.ts
 import pool from '../config/postgres';
 
 export interface ISessionRepository {
@@ -19,7 +18,6 @@ export class SessionRepository implements ISessionRepository {
   }
   
   async getActiveSessions(): Promise<any[]> {
-    // Return sessions that have not expired.
     const result = await pool.query(
       `SELECT * FROM "Sessions" WHERE expires_at > NOW()`
     );
