@@ -1,6 +1,8 @@
+import { pool } from '../../config/database';
 import { PlayerWithPasswordDTO } from '../player/player.dto';
 import { PlayerRepository } from '../player/player.repository';
 import { SessionRepository } from '../session/session.repository';
+import { UserDTO } from '../user/user.dto';
 
 export interface IAuthRepository {
   getPlayerByEmail(email: string): Promise<PlayerWithPasswordDTO | null>;
@@ -14,6 +16,13 @@ export interface IAuthRepository {
   ): Promise<any>;
 
   deleteSession(token: string): Promise<any>;
+
+  createUser(
+    id: string,
+    username: string,
+    email: string,
+    passwordHash: string
+  ): Promise<UserDTO>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -36,5 +45,22 @@ export class AuthRepository implements IAuthRepository {
 
   async deleteSession(token: string) {
     return this.sessionRepo.deleteSessionByToken(token);
+  }
+
+  async createUser(
+    id: string,
+    username: string,
+    email: string,
+    passwordHash: string
+  ) {
+    const result = await pool.query(
+      `INSERT INTO users
+         (id, username, email, password_hash, created_at, updated_at)
+       VALUES ($1,$2,$3,$4,NOW(),NOW())
+       RETURNING id, username, email, contact_number AS "contactNumber",
+                 is_email_verified AS "isEmailVerified"`,
+      [id, username, email, passwordHash]
+    );
+    return result.rows[0] as UserDTO;
   }
 }

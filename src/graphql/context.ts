@@ -1,4 +1,3 @@
-// src/graphql/context.ts
 import type { ExpressContextFunctionArgument } from '@apollo/server/express4';
 import { pool } from '../config/database';
 import { env }  from '../config/env';

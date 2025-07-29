@@ -1,11 +1,31 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
+import { v4 as uuidv4 } from 'uuid';
 import { IAuthRepository, AuthRepository } from './auth.repository';
 import { LoginResponseDTO }                 from './auth.dto';
+import {
+  IPlayerRepository,
+  PlayerRepository,
+  PlayerDTO,
+} from '../player/player.repository'; 
+
+export interface RegisterInput {
+  username:    string;
+  email:       string;
+  password:    string;
+  firstName:   string;
+  lastName:    string;
+  gender:      'Male' | 'Female' | 'Other';
+  dateOfBirth: Date;
+  countryCode?: string;
+}
 
 export class AuthService {
-  constructor(private authRepo: IAuthRepository = new AuthRepository()) {}
+  constructor(
+    private authRepo:   IAuthRepository     = new AuthRepository(),
+    private playerRepo: IPlayerRepository   = new PlayerRepository()
+  ) {}
 
   async signIn(email: string, password: string): Promise<LoginResponseDTO> {
     const player = await this.authRepo.getPlayerByEmail(email);
@@ -36,5 +56,44 @@ export class AuthService {
     }
     const deleted = await this.authRepo.deleteSession(token);
     return !!deleted;
+  }
+
+  async register(input: RegisterInput): Promise<LoginResponseDTO> {
+    const passwordHash = await bcrypt.hash(input.password, 10);
+
+    const userId = uuidv4();
+    await this.authRepo.createUser(
+      userId,
+      input.username,
+      input.email,
+      passwordHash
+    );
+
+    const playerId = uuidv4();
+    const player = await this.playerRepo.createProfile({
+      id:           playerId,
+      userId,
+      firstName:    input.firstName,
+      lastName:     input.lastName,
+      gender:       input.gender,
+      dateOfBirth:  input.dateOfBirth,
+      countryCode:  input.countryCode,
+    });
+
+    if (!player) {
+      throw new Error('Failed to create player profile');
+    }
+
+    const token = jwt.sign({ playerId: player.id }, env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+    const expiresAt = new Date(Date.now() + 3600 * 1000);
+
+    await this.authRepo.createSession(player.id, token, expiresAt);
+
+    return {
+      token,
+      player,
+    };
   }
 }

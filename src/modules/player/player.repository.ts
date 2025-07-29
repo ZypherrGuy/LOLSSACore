@@ -13,6 +13,17 @@ export interface IPlayerRepository {
   getByTeam(teamId: string): Promise<PlayerDTO[]>;
   getLinkedAccounts(playerId: string): Promise<LinkedAccountDTO[]>;
   getRiotAccount(userId: string): Promise<RiotAccountDTO | null>;
+
+  createProfile(data: {
+    id: string;
+    userId: string;
+    firstName: string;
+    lastName: string;
+    gender: string;
+    dateOfBirth: Date;
+    countryCode?: string;
+  }): Promise<PlayerDTO>;
+  
 }
 
 export class PlayerRepository implements IPlayerRepository {
@@ -142,4 +153,43 @@ export class PlayerRepository implements IPlayerRepository {
     );
     return result.rows[0] || null;
   }
+
+  async createProfile(data: {
+    id: string;
+    userId: string;
+    firstName: string;
+    lastName: string;
+    gender: string;
+    dateOfBirth: Date;
+    countryCode?: string;
+  }): Promise<PlayerDTO> {
+    const result = await pool.query(
+      `INSERT INTO players
+         (id, user_id, first_name, last_name, gender, date_of_birth, country_code, created_at, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,NOW(),NOW())
+       RETURNING
+         id,
+         user_id       AS "userId",
+         first_name    AS "firstName",
+         last_name     AS "lastName",
+         gender,
+         date_of_birth AS "dateOfBirth",
+         country_code  AS "countryCode",
+         current_team_id    AS "currentTeamId",
+         created_at    AS "createdAt",
+         updated_at    AS "updatedAt"`,
+      [
+        data.id,
+        data.userId,
+        data.firstName,
+        data.lastName,
+        data.gender,
+        data.dateOfBirth,
+        data.countryCode ?? null,
+      ]
+    );
+    return result.rows[0] as PlayerDTO;
+  }
 }
+
+export { PlayerDTO };

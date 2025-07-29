@@ -1,4 +1,3 @@
-// src/graphql/schema.ts
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { mergeTypeDefs }        from '@graphql-tools/merge';
 
