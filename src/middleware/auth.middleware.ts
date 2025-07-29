@@ -12,19 +12,24 @@ export interface AuthRequest extends Request {
   token?: string;
 }
 
-export function authMiddleware(req: AuthRequest, _res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
-    return next();
+export function authMiddleware(
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+) {
+  let rawToken: string | undefined = req.cookies?.jid;
+
+  if (!rawToken && req.headers.authorization?.startsWith('Bearer ')) {
+    rawToken = req.headers.authorization.slice(7);
   }
 
-  const token = header.slice(7);
-  req.token = token;
-
-  try {
-    req.user = jwt.verify(token, env.JWT_SECRET) as AuthPayload;
-  } catch (err) {
-    logger.warn('Invalid or expired JWT:', err);
+  if (rawToken) {
+    req.token = rawToken;
+    try {
+      req.user = jwt.verify(rawToken, env.JWT_SECRET) as AuthPayload;
+    } catch (err) {
+      logger.warn('Invalid or expired JWT:', err);
+    }
   }
 
   next();

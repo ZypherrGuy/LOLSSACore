@@ -24,6 +24,9 @@ const EnvSchema = z.object({
 
   STRAPI_API_URL:    z.string().url(),
   STRAPI_API_TOKEN:  z.string(),
+
+  CLIENT_URL: z.string().url(),
+  CSRF_SECRET: z.string(),
 });
 
 export const env = EnvSchema.parse(process.env);

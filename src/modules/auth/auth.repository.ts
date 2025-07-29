@@ -2,9 +2,6 @@ import { PlayerWithPasswordDTO } from '../player/player.dto';
 import { PlayerRepository } from '../player/player.repository';
 import { SessionRepository } from '../session/session.repository';
 
-/**
- * Repository interface for authentication-related data access.
- */
 export interface IAuthRepository {
   getPlayerByEmail(email: string): Promise<PlayerWithPasswordDTO | null>;
 
