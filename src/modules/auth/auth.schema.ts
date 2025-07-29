@@ -15,6 +15,8 @@ export const authTypeDefs = gql`
       countryCode: String
     ): LoginResponse!   
     verifyEmail(token: String!): Boolean!         
+    requestPasswordReset(email: String!): Boolean!
+    resetPassword(token: String!, newPassword: String!): Boolean!
   }
 
   type LoginResponse {

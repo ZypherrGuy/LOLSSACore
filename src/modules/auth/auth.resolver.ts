@@ -59,5 +59,19 @@ export const authResolvers = {
     verifyEmail: async (_: any, { token }: { token: string }) => {
       return await authService.verifyEmail(token);
     },
+
+    requestPasswordReset: async (
+      _: any,
+      { email }: { email: string }
+    ): Promise<boolean> => {
+      return await authService.requestPasswordReset(email);
+    },
+
+    resetPassword: async (
+      _: any,
+      { token, newPassword }: { token: string; newPassword: string }
+    ): Promise<boolean> => {
+      return await authService.resetPassword(token, newPassword);
+    },
   },
 };

@@ -10,6 +10,8 @@ import {
   PlayerDTO,
 } from '../player/player.repository'; 
 import { sendVerificationEmail } from '../../utils/email';
+import { sendPasswordResetEmail } from '../../utils/email';
+
 import { pool } from '../../config/database';
 
 export interface RegisterInput {
@@ -114,12 +116,39 @@ export class AuthService {
     if (!row || row.expires_at < new Date()) {
       throw new Error('Invalid or expired verification token');
     }
-    // mark the user as verified
     await pool.query(
       `UPDATE users SET is_email_verified = TRUE WHERE id = $1`,
       [row.user_id]
     );
     await this.authRepo.deleteVerificationToken(token);
+    return true;
+  }
+
+  async requestPasswordReset(email: string): Promise<boolean> {
+    const player = await this.authRepo.getPlayerByEmail(email);
+    if (!player) return true; 
+
+    const resetToken = uuidv4();
+    const expiresAt = new Date(Date.now() + 3600 * 1000); // 1h
+
+    await this.authRepo.savePasswordResetToken(player.userId, resetToken, expiresAt);
+    await sendPasswordResetEmail(email, resetToken);
+    return true;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    const row = await this.authRepo.findPasswordResetToken(token);
+    if (!row || row.expires_at < new Date()) {
+      throw new Error('Invalid or expired password reset token');
+    }
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    await pool.query(
+      `UPDATE users SET password_hash = $1 WHERE id = $2`,
+      [hash, row.user_id]
+    );
+
+    await this.authRepo.deletePasswordResetToken(token);
     return true;
   }
 }

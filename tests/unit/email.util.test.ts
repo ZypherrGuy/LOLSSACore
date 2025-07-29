@@ -1,4 +1,4 @@
-import { transporter, sendVerificationEmail } from '../../src/utils/email';
+import { transporter, sendVerificationEmail, sendPasswordResetEmail } from '../../src/utils/email';
 
 describe('sendVerificationEmail util', () => {
   const OLD_ENV = process.env;
@@ -29,5 +29,28 @@ describe('sendVerificationEmail util', () => {
     expect(mailOptions.html).toContain(process.env.CLIENT_URL!);
 
     sendMailSpy.mockRestore();
+  });
+});
+
+describe('sendPasswordResetEmail util', () => {
+  const OLD_ENV = process.env;
+  beforeAll(() => {
+    process.env = { ...OLD_ENV, NODE_ENV: 'development' };
+  });
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
+  it('calls sendMail with the reset link', async () => {
+    const spy = jest.spyOn(transporter, 'sendMail').mockResolvedValue({} as any);
+    const to = 'foo@example.com';
+    const token = 'reset-token';
+    await sendPasswordResetEmail(to, token);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    const opts = spy.mock.calls[0][0];
+    expect(opts.to).toBe(to);
+    expect(opts.html).toContain(encodeURIComponent(token));
+    spy.mockRestore();
   });
 });

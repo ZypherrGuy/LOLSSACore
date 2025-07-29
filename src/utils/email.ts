@@ -23,3 +23,18 @@ export async function sendVerificationEmail(to: string, token: string) {
     html: `<p><a href="${verifyUrl}">Verify your e‑mail</a></p>`,
   });
 }
+
+export async function sendPasswordResetEmail(to: string, token: string) {
+  if (process.env.NODE_ENV === 'test') return;
+  const resetUrl = `${env.CLIENT_URL}/reset-password?token=${encodeURIComponent(token)}`;
+  await transporter.sendMail({
+    from: `"LoLSSA Community" <no-reply@lolssa.com>`,
+    to,
+    subject: 'Your password reset link',
+    html: `
+      <p>You requested a password reset. Click below to choose a new password:</p>
+      <p><a href="${resetUrl}">Reset my password</a></p>
+      <p>This link expires in 1 hour.</p>
+    `,
+  });
+}

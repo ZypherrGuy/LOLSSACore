@@ -28,6 +28,10 @@ export interface IAuthRepository {
   findVerificationToken(token: string): Promise<{ user_id: string; expires_at: Date } | null>;
   deleteVerificationToken(token: string): Promise<void>;
   isEmailVerified(userId: string): Promise<boolean>;
+
+  savePasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void>;
+  findPasswordResetToken(token: string): Promise<{ user_id: string; expires_at: Date } | null>;
+  deletePasswordResetToken(token: string): Promise<void>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -93,10 +97,33 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async isEmailVerified(userId: string): Promise<boolean> {
-  const { rows } = await pool.query(
-    `SELECT is_email_verified FROM users WHERE id = $1`,
-    [userId]
-  );
-  return rows[0]?.is_email_verified === true;
-}
+    const { rows } = await pool.query(
+      `SELECT is_email_verified FROM users WHERE id = $1`,
+      [userId]
+    );
+    return rows[0]?.is_email_verified === true;
+  }
+
+  async savePasswordResetToken(userId: string, token: string, expiresAt: Date) {
+    await pool.query(
+      `INSERT INTO password_reset_tokens (user_id, token, expires_at)
+       VALUES ($1, $2, $3)`,
+      [userId, token, expiresAt]
+    );
+  }
+
+  async findPasswordResetToken(token: string) {
+    const { rows } = await pool.query(
+      `SELECT user_id, expires_at FROM password_reset_tokens WHERE token = $1`,
+      [token]
+    );
+    return rows[0] || null;
+  }
+
+  async deletePasswordResetToken(token: string) {
+    await pool.query(
+      `DELETE FROM password_reset_tokens WHERE token = $1`,
+      [token]
+    );
+  }
 }

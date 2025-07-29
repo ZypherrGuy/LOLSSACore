@@ -14,7 +14,8 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalTeardown": "<rootDir>/jest.teardown.js"
   },
   "keywords": [],
   "author": "",
