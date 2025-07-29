@@ -9,6 +9,8 @@ import {
   PlayerRepository,
   PlayerDTO,
 } from '../player/player.repository'; 
+import { sendVerificationEmail } from '../../utils/email';
+import { pool } from '../../config/database';
 
 export interface RegisterInput {
   username:    string;
@@ -87,13 +89,32 @@ export class AuthService {
     const token = jwt.sign({ playerId: player.id }, env.JWT_SECRET, {
       expiresIn: '1h',
     });
-    const expiresAt = new Date(Date.now() + 3600 * 1000);
+    const signinTokenExpiresAt = new Date(Date.now() + 3600 * 1000);
 
-    await this.authRepo.createSession(player.id, token, expiresAt);
+    await this.authRepo.createSession(player.id, token, signinTokenExpiresAt);
 
+    const emailVerifyToken = uuidv4();
+    const emailVerifyTokenExpiresAt = new Date(Date.now() + 24*3600*1000); 
+    await this.authRepo.saveVerificationToken(userId, emailVerifyToken, emailVerifyTokenExpiresAt);
+    await sendVerificationEmail(input.email, emailVerifyToken);
+    
     return {
       token,
       player,
     };
+  }
+
+  async verifyEmail(token: string): Promise<boolean> {
+    const row = await this.authRepo.findVerificationToken(token);
+    if (!row || row.expires_at < new Date()) {
+      throw new Error('Invalid or expired verification token');
+    }
+    // mark the user as verified
+    await pool.query(
+      `UPDATE users SET is_email_verified = TRUE WHERE id = $1`,
+      [row.user_id]
+    );
+    await this.authRepo.deleteVerificationToken(token);
+    return true;
   }
 }

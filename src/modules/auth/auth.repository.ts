@@ -23,6 +23,10 @@ export interface IAuthRepository {
     email: string,
     passwordHash: string
   ): Promise<UserDTO>;
+
+  saveVerificationToken(userId: string, token: string, expiresAt: Date): Promise<void>;
+  findVerificationToken(token: string): Promise<{ user_id: string; expires_at: Date } | null>;
+  deleteVerificationToken(token: string): Promise<void>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -62,5 +66,28 @@ export class AuthRepository implements IAuthRepository {
       [id, username, email, passwordHash]
     );
     return result.rows[0] as UserDTO;
+  }
+
+  async saveVerificationToken(userId: string, token: string, expiresAt: Date) {
+    await pool.query(
+      `INSERT INTO email_verification_tokens (user_id, token, expires_at)
+       VALUES ($1,$2,$3)`,
+      [userId, token, expiresAt]
+    );
+  }
+
+  async findVerificationToken(token: string) {
+    const { rows } = await pool.query(
+      `SELECT user_id, expires_at FROM email_verification_tokens WHERE token = $1`,
+      [token]
+    );
+    return rows[0] || null;
+  }
+
+  async deleteVerificationToken(token: string) {
+    await pool.query(
+      `DELETE FROM email_verification_tokens WHERE token = $1`,
+      [token]
+    );
   }
 }

@@ -13,7 +13,8 @@ export const authTypeDefs = gql`
       gender:      String!
       dateOfBirth: String!   # parse this as ISO-8601 on the server
       countryCode: String
-  ): LoginResponse!            
+    ): LoginResponse!   
+    verifyEmail(token: String!): Boolean!         
   }
 
   type LoginResponse {

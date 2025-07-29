@@ -25,6 +25,11 @@ const EnvSchema = z.object({
   STRAPI_API_URL:    z.string().url(),
   STRAPI_API_TOKEN:  z.string(),
 
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.string().transform(Number),
+  SMTP_USER: z.string(),
+  SMTP_PASS: z.string(),
+
   CLIENT_URL: z.string().url(),
   CSRF_SECRET: z.string(),
 });

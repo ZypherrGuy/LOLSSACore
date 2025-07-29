@@ -55,5 +55,9 @@ export const authResolvers = {
 
       return { token, player };
     },
+
+    verifyEmail: async (_: any, { token }: { token: string }) => {
+      return await authService.verifyEmail(token);
+    },
   },
 };
