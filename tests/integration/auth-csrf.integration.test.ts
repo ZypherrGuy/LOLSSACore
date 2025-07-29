@@ -186,5 +186,59 @@ describe('CSRF & cookie auth flow', () => {
             [newUserId]
         );
         expect(urows[0].is_email_verified).toBe(true);
-        });
+    });
+    it('8) blocks signIn until email verified', async () => {
+        const { body: { csrfToken }, headers: headers1 } = await request(app)
+            .get('/csrf-token')
+            .expect(200);
+        const rawSet1 = headers1['set-cookie'] as string | string[];
+        const setArr1 = Array.isArray(rawSet1) ? rawSet1 : [rawSet1];
+        const csrfCookie = setArr1.find(c => c.startsWith('__Host-XSRF-TOKEN='));
+        expect(csrfCookie).toBeDefined();
+
+        const unique = Date.now();
+        const testEmail    = `pending${unique}@example.com`;
+        const testPassword = 'pass1234';
+        await request(app)
+            .post('/graphql')
+            .set('Cookie', csrfCookie as string)
+            .set('x-csrf-token', csrfToken)
+            .send({
+            query: `
+                mutation {
+                register(
+                    username:    "pending${unique}",
+                    email:       "${testEmail}",
+                    password:    "${testPassword}",
+                    firstName:   "Pending",
+                    lastName:    "User",
+                    gender:      "Other",
+                    dateOfBirth: "2000-01-01",
+                    countryCode: "US"
+                ) { token player { userId } }
+                }
+            `
+            })
+            .expect(200);
+
+        const signInRes = await request(app)
+            .post('/graphql')
+            .set('Cookie', csrfCookie as string)
+            .set('x-csrf-token', csrfToken)
+            .send({
+            query: `
+                mutation {
+                signIn(email: "${testEmail}", password: "${testPassword}") {
+                    token
+                    player { id }
+                }
+                }
+            `
+            })
+            .expect(200);
+
+        expect(signInRes.body.data).toBeNull();
+        expect(signInRes.body.errors).toBeDefined();
+        expect(signInRes.body.errors[0].message).toMatch(/not verified/i);
+    });
 });

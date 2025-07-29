@@ -37,6 +37,10 @@ export async function seedTestUser() {
       TEST_USER.dateOfBirth,
     ]
   );
+  await pool.query(
+    `UPDATE users SET is_email_verified = TRUE WHERE email = $1`,
+    [TEST_USER.email]
+  );
 }
 
 export async function cleanupTestUser() {

@@ -39,6 +39,11 @@ export class AuthService {
       throw new Error('Invalid credentials');
     }
 
+    const verified = await this.authRepo.isEmailVerified(player.userId);
+    if (!verified) {
+      throw new Error('Email not verified');
+    }
+
     const token = jwt.sign(
       { playerId: player.id },
       env.JWT_SECRET,

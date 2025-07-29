@@ -27,6 +27,7 @@ export interface IAuthRepository {
   saveVerificationToken(userId: string, token: string, expiresAt: Date): Promise<void>;
   findVerificationToken(token: string): Promise<{ user_id: string; expires_at: Date } | null>;
   deleteVerificationToken(token: string): Promise<void>;
+  isEmailVerified(userId: string): Promise<boolean>;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -90,4 +91,12 @@ export class AuthRepository implements IAuthRepository {
       [token]
     );
   }
+
+  async isEmailVerified(userId: string): Promise<boolean> {
+  const { rows } = await pool.query(
+    `SELECT is_email_verified FROM users WHERE id = $1`,
+    [userId]
+  );
+  return rows[0]?.is_email_verified === true;
+}
 }
